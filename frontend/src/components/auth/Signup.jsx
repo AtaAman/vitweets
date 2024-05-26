@@ -1,5 +1,4 @@
-import React from "react";
-import { Logo }  from "../Logo.jsx";
+import React, { useState } from "react";
 import { Button } from "../Button.jsx";
 import { Input } from "../Input.jsx";
 import { useForm } from "react-hook-form";
@@ -10,121 +9,111 @@ import { useDispatch, useSelector } from "react-redux";
 import LoginSkeleton from "../LoginSkeleton.jsx";
 
 function SignUp() {
-    const { handleSubmit, register, control, formState: { errors } } = useForm();
+    const { handleSubmit, register, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
     const loading = useSelector((state) => state.auth?.loading);
 
     const submit = async (data) => {
+        if (isLoading) return; // Prevent multiple submissions
+        setIsLoading(true);
+
         try {
-            // Simplified response log for debugging
             const response = await dispatch(createAccount(data));
             console.log("Create account response:", response);
 
             if (response?.payload?.success) {
-                const username = data?.username;
-                const password = data?.password;
-                const loginResult = await dispatch(userLogin({ username, password }));
-                console.log("Login result:", loginResult);
-
-                if (loginResult?.type === "login/fulfilled") {
-                    navigate("/login");
-                } else {
-                    alert("register successful verify your email!");
-                    navigate("/verifyOtp");
-                }
-            }
-            else{
-                alert("username or email is already exist");
+                alert("Register successful! Please verify your email.");
+                // Optionally, navigate to another page if needed
+                // navigate("/verifyOtp");
+            } else {
+                alert("Username or email is already taken.");
             }
         } catch (error) {
-            console.error("Error during submission:", error); // Log any errors
+            console.error("Error during submission:", error);
         }
+
+        setIsLoading(false);
     };
 
     const handleClick = () => {
-        console.log("Button clicked");
         handleSubmit(submit)();
     };
-    
 
-    if (loading) {
+    if (loading || isLoading) {
         return <LoginSkeleton />;
     }
 
     return (
-        <>
-            <div className="w-full h-screen text-white p-3 flex justify-center items-start sm:mt-8">
-                <div className="flex flex-col space-y-2 justify-center items-center border border-slate-600 p-3">
-                    <div className="flex items-center gap-2">
-                        <Logo />
-                    </div>
-                    <form className="space-y-4 p-2 text-sm sm:w-96 w-full">
-                        <Input
-                            label="Username: "
-                            type="text"
-                            placeholder="Enter username"
-                            {...register("username", { required: "username is required" })}
-                            className="h-8"
-                        />
-                        {errors.username && (
-                            <span className="text-red-500">
-                                {errors.username.message}
-                            </span>
-                        )}
-                        <Input
-                            label="Email: "
-                            type="email"
-                            placeholder="Enter email"
-                            {...register("email", { required: "email is required" })}
-                            className="h-8"
-                        />
-                        {errors.email && (
-                            <span className="text-red-500">
-                                {errors.email.message}
-                            </span>
-                        )}
-                        <Input
-                            label="Fullname: "
-                            type="text"
-                            placeholder="Enter fullname"
-                            {...register("fullName", { required: "fullName is required" })}
-                            className="h-8"
-                        />
-                        {errors.fullName && (
-                            <span className="text-red-500">
-                                {errors.fullName.message}
-                            </span>
-                        )}
-                        <Input
-                            label="Password: "
-                            type="password"
-                            placeholder="Enter password"
-                            {...register("password", { required: "password is required" })}
-                            className="h-8"
-                        />
-                        {errors.password && (
-                            <span className="text-red-500">
-                                {errors.password.message}
-                            </span>
-                        )}
-                        <Button
-                            onClick={handleClick}
-                            bgColor="bg-red-500"
-                            className="w-full sm:py-3 py-2 hover:bg-red-700 text-lg"
-                        >
-                            Signup
-                        </Button>
-                        <p className="text-center text-sm">
-                            Already have an account?{" "}
-                            <Link to={"/login"} className="text-red-600 cursor-pointer hover:opacity-70">
-                                Login
-                            </Link>
-                        </p>
-                    </form>
-                </div>
+        <div className="w-full h-screen text-white p-3 flex justify-center items-start">
+            <div className="flex w-full h-screen flex-col space-y-5 justify-center items-center">
+                <p className="text-xl md:text-2xl font-bold">Register in <span className="text-red-500">Vitweets</span></p>
+                <form className="space-y-4 md:w-[40%] lg:w-[30%] w-[60%] flex flex-col items-center justify-center">
+                    <Input
+                        className="h-12 rounded-lg"
+                        label=""
+                        type="text"
+                        placeholder="Username"
+                        {...register("username", { required: "Username is required" })}
+                    />
+                    {errors.username && (
+                        <span className="text-red-500">
+                            {errors.username.message}
+                        </span>
+                    )}
+                    <Input
+                        label=""
+                        type="email"
+                        placeholder="Email"
+                        {...register("email", { required: "Email is required" })}
+                        className="h-12 rounded-lg"
+                    />
+                    {errors.email && (
+                        <span className="text-red-500">
+                            {errors.email.message}
+                        </span>
+                    )}
+                    <Input
+                        label=""
+                        type="text"
+                        placeholder="Fullname"
+                        {...register("fullName", { required: "Fullname is required" })}
+                        className="h-12 rounded-lg"
+                    />
+                    {errors.fullName && (
+                        <span className="text-red-500">
+                            {errors.fullName.message}
+                        </span>
+                    )}
+                    <Input
+                        label=""
+                        type="password"
+                        placeholder="Password"
+                        {...register("password", { required: "Password is required" })}
+                        className="h-12 rounded-lg"
+                    />
+                    {errors.password && (
+                        <span className="text-red-500">
+                            {errors.password.message}
+                        </span>
+                    )}
+                    <Button
+                        onClick={handleClick}
+                        bgColor="bg-red-800"
+                        className="w-full sm:py-3 py-2 rounded-lg hover:bg-red-700 text-lg"
+                    >
+                        Signup
+                    </Button>
+                    <p className="text-center text-sm">
+                        Already have an account?{" "}
+                        <Link to={"/login"} className="text-red-600 text-[17px] font-bold cursor-pointer hover:opacity-70">
+                            Login
+                        </Link>
+                    </p>
+                </form>
             </div>
-        </>
+        </div>
     );
 }
 

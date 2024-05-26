@@ -9,7 +9,7 @@ const initialState = {
 };
 
 // Async thunks for API interactions
-export const createAccount = createAsyncThunk("register", async (data, { rejectWithValue }) => {
+export const createAccount = createAsyncThunk("auth/register", async (data, { rejectWithValue }) => {
     const formData = new FormData();
     formData.append("username", data.username);
     formData.append("email", data.email);
@@ -32,7 +32,7 @@ export const createAccount = createAsyncThunk("register", async (data, { rejectW
     }
 });
 
-export const userLogin = createAsyncThunk("login", async (data, { rejectWithValue }) => {
+export const userLogin = createAsyncThunk("auth/login", async (data, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.post("/users/login", data);
         toast.success("Logged in successfully!!!");
@@ -43,20 +43,17 @@ export const userLogin = createAsyncThunk("login", async (data, { rejectWithValu
     }
 });
 
-export const userLogout = createAsyncThunk("logout", async (_, { rejectWithValue }) => {
+export const userLogout = createAsyncThunk("auth/logout", async (_, { rejectWithValue, dispatch }) => {
     try {
         localStorage.removeItem('accessToken');
-        // Dispatch an action to update the authentication status in the Redux store
         dispatch(updateAuthStatus(false));
         return { success: true };
     } catch (error) {
-        // Handle any errors that occur during logout
         return rejectWithValue(error.response.data);
     }
 });
 
-
-export const refreshAccessToken = createAsyncThunk("refreshAccessToken", async (data, { rejectWithValue }) => {
+export const refreshAccessToken = createAsyncThunk("auth/refreshAccessToken", async (data, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.post("/users/refresh-token", data);
         return response.data;
@@ -66,7 +63,7 @@ export const refreshAccessToken = createAsyncThunk("refreshAccessToken", async (
     }
 });
 
-export const changePassword = createAsyncThunk("changePassword", async (data, { rejectWithValue }) => {
+export const changePassword = createAsyncThunk("auth/changePassword", async (data, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.post("/users/change-password", data);
         toast.success(response.data?.message);
@@ -77,7 +74,7 @@ export const changePassword = createAsyncThunk("changePassword", async (data, { 
     }
 });
 
-export const getCurrentUser = createAsyncThunk("getCurrentUser", async (_, { rejectWithValue }) => {
+export const getCurrentUser = createAsyncThunk("auth/getCurrentUser", async (_, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.get("/users/current-user");
         return response.data.data;
@@ -86,7 +83,7 @@ export const getCurrentUser = createAsyncThunk("getCurrentUser", async (_, { rej
     }
 });
 
-export const updateAvatar = createAsyncThunk("updateAvatar", async (avatar, { rejectWithValue }) => {
+export const updateAvatar = createAsyncThunk("auth/updateAvatar", async (avatar, { rejectWithValue }) => {
     try {
         const formData = new FormData();
         formData.append("avatar", avatar[0]);
@@ -99,7 +96,7 @@ export const updateAvatar = createAsyncThunk("updateAvatar", async (avatar, { re
     }
 });
 
-export const updateCoverImg = createAsyncThunk("updateCoverImg", async (coverImage, { rejectWithValue }) => {
+export const updateCoverImg = createAsyncThunk("auth/updateCoverImg", async (coverImage, { rejectWithValue }) => {
     try {
         const formData = new FormData();
         formData.append("coverImage", coverImage[0]);
@@ -112,7 +109,7 @@ export const updateCoverImg = createAsyncThunk("updateCoverImg", async (coverIma
     }
 });
 
-export const updateUserDetails = createAsyncThunk("updateUserDetails", async (data, { rejectWithValue }) => {
+export const updateUserDetails = createAsyncThunk("auth/updateUserDetails", async (data, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.patch("/users/update-user", data);
         toast.success("Updated details successfully!!!");
@@ -123,7 +120,7 @@ export const updateUserDetails = createAsyncThunk("updateUserDetails", async (da
     }
 });
 
-export const verifyOtp = createAsyncThunk("verifyOtp", async (data, { rejectWithValue }) => {
+export const verifyOtp = createAsyncThunk("auth/verifyOtp", async (data, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.post("/users/verify-otp", data);
         toast.success("OTP verified successfully!!!");
@@ -134,24 +131,24 @@ export const verifyOtp = createAsyncThunk("verifyOtp", async (data, { rejectWith
     }
 });
 
-export const requestPasswordReset = createAsyncThunk("requestPasswordReset", async (email, { rejectWithValue }) => {
+export const requestPasswordReset = createAsyncThunk("auth/requestPasswordReset", async (email, { rejectWithValue }) => {
     try {
-        const response = await axiosInstance.post("/users/request-password-reset", { email });
+        const response = await axiosInstance.post("/users/request-reset-password", { email });
         toast.success("OTP sent to email!!!");
         return response.data;
     } catch (error) {
-        toast.error(error?.response?.data?.error);
+        toast.error(error?.response?.data?.error || "An error occurred");
         return rejectWithValue(error.response.data);
     }
 });
 
-export const resetPassword = createAsyncThunk("resetPassword", async (data, { rejectWithValue }) => {
+export const resetPassword = createAsyncThunk("auth/resetPassword", async (data, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.post("/users/reset-password", data);
         toast.success("Password reset successfully!!!");
         return response.data;
     } catch (error) {
-        toast.error(error?.response?.data?.error);
+        toast.error(error?.response?.data?.error || "An error occurred");
         return rejectWithValue(error.response.data);
     }
 });
@@ -253,8 +250,8 @@ const authSlice = createSlice({
             .addCase(verifyOtp.rejected, (state) => {
                 state.loading = false;
             })
-            // Request Password Reset
-            .addCase(requestPasswordReset.pending, (state) => {
+             // Request Password Reset
+             .addCase(requestPasswordReset.pending, (state) => {
                 state.loading = true;
             })
             .addCase(requestPasswordReset.fulfilled, (state) => {
@@ -272,29 +269,9 @@ const authSlice = createSlice({
             })
             .addCase(resetPassword.rejected, (state) => {
                 state.loading = false;
-            })
-            // Change Password
-            .addCase(changePassword.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(changePassword.fulfilled, (state) => {
-                state.loading = false;
-            })
-            .addCase(changePassword.rejected, (state) => {
-                state.loading = false;
-            })
-            // Refresh Access Token
-            .addCase(refreshAccessToken.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(refreshAccessToken.fulfilled, (state, action) => {
-                state.loading = false;
-                state.userData = action.payload.data.user;
-            })
-            .addCase(refreshAccessToken.rejected, (state) => {
-                state.loading = false;
             });
     },
 });
 
+export const { updateAuthStatus } = authSlice.actions;
 export default authSlice.reducer;

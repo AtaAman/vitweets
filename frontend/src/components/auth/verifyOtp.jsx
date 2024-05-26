@@ -35,17 +35,15 @@ function VerifyOtp() {
     return (
         <>
             <div className="w-full h-screen text-white p-3 flex justify-center items-start">
-                <div className="flex max-w-5xl flex-col space-y-5 justify-center items-center border border-slate-600 p-3 mt-20">
-                   <div className="flex items-center gap-2 mt-5">
-                        <Logo />
-                    </div>
-                    <h1 className="text-red-500 text-xl">verify your email</h1>
-                    <form onSubmit={handleSubmit(submit)} className="space-y-5 p-2">
+                <div className="flex w-full h-screen flex-col space-y-5 justify-center items-center">
+                <p className="text-xl md:text-2xl font-bold">Verify your email</p>
+                    <form onSubmit={handleSubmit(submit)} className="space-y-5 md:w-[40%] lg:w-[30%] w-[60%] flex flex-col items-center justify-center">
                         {error && <span className="text-red-500">{error}</span>}
                         <Input
-                            label="Email: "
+                            className="h-12 rounded-lg"
+                            label=""
                             type="email"
-                            placeholder="Enter your email"
+                            placeholder="Email"
                             {...register("email", {
                                 required: "Email is required",
                                 pattern: {
@@ -59,9 +57,10 @@ function VerifyOtp() {
                         )}
 
                         <Input
-                            label="OTP: "
+                            className="h-12 rounded-lg"
+                            label=""
                             type="text"
-                            placeholder="Enter OTP"
+                            placeholder="OTP"
                             {...register("otp", {
                                 required: "OTP is required",
                             })}
@@ -72,8 +71,8 @@ function VerifyOtp() {
 
                         <Button
                             type="submit"
-                            bgColor="bg-red-500"
-                            className="w-full sm:py-3 py-2 hover:bg-red-700 text-lg"
+                            bgColor="bg-red-800"
+                            className="w-full rounded-lg sm:py-3 py-2 hover:bg-red-700 text-lg"
                         >
                             Verify OTP
                         </Button>

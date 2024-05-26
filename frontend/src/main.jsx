@@ -15,6 +15,8 @@ import VerifyOtp from './components/auth/verifyOtp';
 import Login from './components/auth/login';
 import PrivateRoute from './components/auth/PrivateRoutes';
 import './index.css';
+import RequestPasswordReset from './components/auth/RequestPasswordReset';
+import ResetPassword from './components/auth/ResetPassword';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +24,8 @@ const router = createBrowserRouter(
       <Route path="register" element={<Signup />} />
       <Route path="verifyOtp" element={<VerifyOtp />} />
       <Route path="login" element={<Login />} />
+      <Route path="requestPasswordReset" element={<RequestPasswordReset />} />
+      <Route path="ResetPassword" element={<ResetPassword />} />
       <Route
         path="/home"
         element={
