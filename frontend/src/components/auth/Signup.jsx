@@ -3,7 +3,7 @@ import { Button } from "../Button.jsx";
 import { Input } from "../Input.jsx";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { createAccount, userLogin } from "../../store/Slices/authSlice.js";
+import { createAccount} from "../../store/Slices/authSlice.js";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import LoginSkeleton from "../LoginSkeleton.jsx";
@@ -16,24 +16,20 @@ function SignUp() {
     const loading = useSelector((state) => state.auth?.loading);
 
     const submit = async (data) => {
-        if (isLoading) return; // Prevent multiple submissions
+        if (isLoading) return;
         setIsLoading(true);
 
         try {
             const response = await dispatch(createAccount(data));
-            console.log("Create account response:", response);
-
             if (response?.payload?.success) {
                 alert("Register successful! Please verify your email.");
-                // Optionally, navigate to another page if needed
-                // navigate("/verifyOtp");
+                navigate("/verifyOtp");
             } else {
                 alert("Username or email is already taken.");
             }
         } catch (error) {
             console.error("Error during submission:", error);
         }
-
         setIsLoading(false);
     };
 

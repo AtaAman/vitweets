@@ -11,15 +11,20 @@ function ResetPassword() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const onSubmit = async (data) => {
+        setLoading(true);
+        setErrorMessage("");
         try {
-            await dispatch(resetPassword(data));
+            await dispatch(resetPassword(data)).unwrap();
             // Reset password successful, navigate to login page
             navigate("/login");
         } catch (error) {
             // Reset password failed, set error message
             setErrorMessage(error?.response?.data?.error || "Failed to reset password");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -80,8 +85,9 @@ function ResetPassword() {
                         type="submit"
                         bgColor="bg-red-800"
                         className="w-full sm:py-3 py-2 rounded-lg hover:bg-red-700 text-lg"
+                        disabled={loading} // Disable button when loading
                     >
-                        Reset Password
+                        {loading ? 'Resetting Password...' : 'Reset Password'}
                     </Button>
                 </form>
             </div>
