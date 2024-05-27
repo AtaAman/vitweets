@@ -103,7 +103,7 @@ function SignUp() {
                     </Button>
                     <p className="text-center text-sm">
                         Already have an account?{" "}
-                        <Link to={"/login"} className="text-red-600 text-[17px] font-bold cursor-pointer hover:opacity-70">
+                        <Link to={"/login"} className="text-red-600 text-[14px] font-bold cursor-pointer hover:opacity-70">
                             Login
                         </Link>
                     </p>

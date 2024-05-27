@@ -3,6 +3,11 @@ import { useDispatch } from "react-redux";
 import { userLogout } from "../../store/Slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faRightFromBracket
+} from "@fortawesome/free-solid-svg-icons";
+
 
 function logoNav() {
   const dispatch = useDispatch();
@@ -13,15 +18,15 @@ function logoNav() {
     navigate("/login");
   };
   return (
-    <section className="z-50 flex-between bg-transparent  w-screen text-white sticky bottom-0 bg-[#1010ac] py-4 md:hidden">
-        <div className="flex flex-row justify-around">
-            <p>vitweets</p>
+    <section className="sticky top-0 z-50 flex-between backdrop-blur-sm bg-black/20 bg-[#101012] border-b-2 border-gray-900 w-full text-white py-4 md:hidden">
+        <div className="flex flex-row px-10 justify-between">
+        <p className='text-2xl font-semibold text-red-600'>Vitweets</p>
             <Button
-        bgColor="bg-red-800"
-        className="sm:py-3 py-2 rounded-lg hover:bg-red-700 text-lg"
+        className='flex flex-row gap-2 hover:text-red-500'
         onClick={handleLogout}
       >
-        Logout
+         <FontAwesomeIcon className="text-xl pt-1" icon={faRightFromBracket} />
+         <p className='font-bold'>Logout</p>
       </Button>
         </div>
       

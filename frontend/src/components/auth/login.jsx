@@ -115,7 +115,7 @@ function Login() {
                         Don&apos;t have an account?{" "}
                         <Link
                             to={"/register"}
-                            className="text-red-600 text-[17px] font-bold cursor-pointer hover:opacity-70"
+                            className="text-red-600 text-[14px] font-bold cursor-pointer hover:opacity-70"
                         >
                             SignUp
                         </Link>

@@ -15,7 +15,7 @@ function App() {
         const token = localStorage.getItem('accessToken');
         if (token) {
             dispatch(getCurrentUser()).unwrap().then(() => {
-                navigate('/home');
+                navigate('/');
             }).catch(() => {
                 navigate('/login');
             });

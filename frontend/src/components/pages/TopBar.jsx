@@ -1,8 +1,17 @@
-import React from 'react'
+import React from 'react';
 import { useDispatch } from "react-redux";
 import { userLogout } from "../../store/Slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { Button } from "../Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faMagnifyingGlass,
+  faUpload,
+  faHeart,
+  faRightFromBracket,
+  faUser,
+  faHouse,
+} from "@fortawesome/free-solid-svg-icons";
 
 function TopBar() {
   const dispatch = useDispatch();
@@ -14,31 +23,85 @@ function TopBar() {
   };
 
   return (
-    <section className="z-50 flex-between bg-transparent  w-screen text-white sticky hidden bottom-0 bg-[#1010ac] py-4 md:block">
+    <section className="sticky top-0 z-50 backdrop-blur-sm bg-black/20  bg-[#101012] border-b-2 border-gray-900 flex-between w-full text-white hidden md:block py-4">
+      <div className="flex flex-row justify-around gap-10">
+        <p className='text-2xl mt-2 font-bold text-red-600'>Vitweets</p>
 
-      <div className="flex flex-row justify-around">
-        <p>Vitweets</p>
-
-        <div >
-        <ul className="flex flex-row gap-8">
-        <li>home</li>
-        <li>search</li>
-        <li>create</li>
-        <li>notification</li>
-        <li>profile</li>
-      </ul>
+        <div>
+          <ul className="flex gap-10 text-2xl text-gray-500 flex-row justify-between">
+            <li className="rounded-lg flex base-medium transition">
+              <NavLink
+                to="/home"
+                className={({ isActive }) =>
+                  `block py-2 pr-4 pl-3 duration-200 ${
+                    isActive ? "text-red-700" : "text-gray-600"
+                  }`
+                }
+              >
+                <FontAwesomeIcon icon={faHouse} />
+              </NavLink>
+            </li>
+            <li className="rounded-lg flex base-medium transition">
+              <NavLink
+                to="/explore"
+                className={({ isActive }) =>
+                  `block py-2 pr-4 pl-3 duration-200 ${
+                    isActive ? "text-red-700" : "text-gray-500"
+                  }`
+                }
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+              </NavLink>
+            </li>
+            <li className="rounded-lg relative flex base-medium transition">
+              <NavLink
+                to="/upload"
+                className={({ isActive }) =>
+                  `block py-2 pr-4 pl-3 duration-200 ${
+                    isActive ? "text-red-700" : "text-gray-500"
+                  }`
+                }
+              >
+                <FontAwesomeIcon icon={faUpload} />
+              </NavLink>
+            </li>
+            <li className="rounded-lg flex base-medium transition">
+              <NavLink
+                to="/notification"
+                className={({ isActive }) =>
+                  `block py-2 pr-4 pl-3 duration-200 ${
+                    isActive ? "text-red-700" : "text-gray-500"
+                  }`
+                }
+              >
+                <FontAwesomeIcon icon={faHeart} />
+              </NavLink>
+            </li>
+            <li className="rounded-lg flex base-medium transition">
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `block py-2 pr-4 pl-3 duration-200 ${
+                    isActive ? "text-red-700" : "text-gray-500"
+                  }`
+                }
+              >
+                <FontAwesomeIcon icon={faUser} />
+              </NavLink>
+            </li>
+          </ul>
         </div>
-      <Button
-        bgColor="bg-red-800"
-        className="sm:py-3 py-2 rounded-lg hover:bg-red-700 text-lg"
-        onClick={handleLogout}
-      >
-        Logout
-      </Button>
-      </div>
 
+        <Button
+          className='flex flex-row bg-black p-3 rounded-full gap-2 hover:text-red-500'
+          onClick={handleLogout}
+        >
+          <FontAwesomeIcon className="text-xl pt-1" icon={faRightFromBracket} />
+          <p className='font-bold'>Logout</p>
+        </Button>
+      </div>
     </section>
-  )
+  );
 }
 
-export default TopBar
+export default TopBar;
