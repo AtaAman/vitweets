@@ -49,7 +49,21 @@ const userSchema = new Schema(
         isVerified: {
             type: Boolean,
             default: false
-        }
+        },
+        followers: [
+            {
+              userId: {
+                type: String,
+              },
+            },
+          ],
+          following: [
+            {
+              userId: {
+                type: String,
+              },
+            },
+          ],
     },
     {
         timestamps: true

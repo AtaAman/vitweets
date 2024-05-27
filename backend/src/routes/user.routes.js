@@ -1,11 +1,9 @@
-// routes/auth.js
-
 import { Router } from 'express';
 import { 
     loginUser, 
     logoutUser, 
     registerUser, 
-    verifyOtp, // Add this line
+    verifyOtp,
     refreshAccessToken, 
     changeCurrentPassword, 
     getCurrentUser, 
@@ -13,7 +11,9 @@ import {
     updateUserCoverImage, 
     updateAccountDetails,
     requestPasswordReset,
-    resetPassword
+    resetPassword,
+    followUnfollowUser,
+    getNotifications
 } from '../controllers/user.controller.js';
 import { upload } from '../middlewares/multer.middleware.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
@@ -35,7 +35,6 @@ router.route('/register').post(
 );
 
 router.route('/verify-otp').post(verifyOtp); // Add this line
-
 router.route('/login').post(loginUser);
 router.route('/request-reset-password').post(requestPasswordReset);
 router.route('/reset-password').post(resetPassword);
@@ -43,6 +42,8 @@ router.route('/reset-password').post(resetPassword);
 // Secured routes
 router.route('/logout').post(verifyJWT, logoutUser);
 router.route('/refresh-token').post(refreshAccessToken);
+router.route('/followUnfollowUser').post(verifyJWT, followUnfollowUser);
+router.route('/getNotifications').get(verifyJWT, getNotifications);
 router.route('/change-password').post(verifyJWT, changeCurrentPassword);
 router.route('/current-user').get(verifyJWT, getCurrentUser);
 router.route('/update-account').patch(verifyJWT, updateAccountDetails);

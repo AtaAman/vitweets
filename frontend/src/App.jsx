@@ -2,11 +2,14 @@ import React, { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentUser } from './store/Slices/authSlice';
+import TopBar from './components/pages/TopBar';
+import BottomBar from './components/pages/BottomBar';
+import LogoNav from './components/pages/LogoNav';
 
 function App() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const isAuthenticated = useSelector((state) => state.auth?.status);
+    const token = localStorage.getItem('accessToken');
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
@@ -22,8 +25,22 @@ function App() {
     }, [dispatch, navigate]);
 
     return (
-        <div>
-            <Outlet />
+        <div className="w-full">
+            {token && (
+                <>
+                    <TopBar />
+                    <LogoNav />
+                </>
+            )}
+            <section className="flex h-screen">
+                <Outlet />
+            </section>
+            {token && (
+                <>
+                    <BottomBar />
+                </>
+            )}
+            
         </div>
     );
 }

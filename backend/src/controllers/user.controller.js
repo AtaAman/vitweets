@@ -6,7 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { sendOtpEmail } from "../utils/mailer.js";
 import crypto from 'crypto';
 import  jwt  from "jsonwebtoken";
-
+import Notification from "../models/notification.models.js";
 
 const generateAccessAndRefereshTokens = async(userId) =>{
     try {
@@ -397,6 +397,81 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     )
 })
 
+const followUnfollowUser = asyncHandler(async (req, res) => {
+    const loggedInUserId = req.user._id;
+    const { followUserId } = req.body;
+
+    if (!followUserId) {
+        throw new ApiError(400, "User ID to follow/unfollow is required");
+    }
+
+    const loggedInUser = await User.findById(loggedInUserId);
+    const userToFollow = await User.findById(followUserId);
+
+    if (!userToFollow) {
+        throw new ApiError(404, "User to follow/unfollow not found");
+    }
+
+    const isFollowedBefore = loggedInUser.following.some(
+        (follow) => follow.userId === followUserId
+    );
+
+    if (isFollowedBefore) {
+        await User.updateOne(
+            { _id: followUserId },
+            { $pull: { followers: { userId: loggedInUserId } } }
+        );
+
+        await User.updateOne(
+            { _id: loggedInUserId },
+            { $pull: { following: { userId: followUserId } } }
+        );
+
+        await Notification.deleteOne({
+            "creator._id": loggedInUserId,
+            userId: followUserId,
+            type: "Follow",
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "User unfollowed successfully",
+        });
+    } else {
+        await User.updateOne(
+            { _id: followUserId },
+            { $push: { followers: { userId: loggedInUserId } } }
+        );
+
+        await User.updateOne(
+            { _id: loggedInUserId },
+            { $push: { following: { userId: followUserId } } }
+        );
+
+        await Notification.create({
+            creator: { _id: loggedInUserId, username: loggedInUser.username },
+            type: "Follow",
+            title: "Followed you",
+            userId: followUserId,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "User followed successfully",
+        });
+    }
+});
+
+const getNotifications = asyncHandler(async (req, res) => {
+    const notifications = await Notification.find({ userId: req.user._id }).sort(
+        { createdAt: -1 }
+    );
+
+    res.status(200).json({
+        success: true,
+        notifications,
+    });
+});
 
 export {
     registerUser,
@@ -411,4 +486,6 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+    getNotifications,
+    followUnfollowUser
 }
