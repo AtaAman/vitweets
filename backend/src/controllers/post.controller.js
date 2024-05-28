@@ -120,6 +120,7 @@ export const likePost = async (req, res) => {
         }
         post.likes.push(req.user._id);
         await post.save();
+        console.log("liked");
         res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -135,6 +136,7 @@ export const unlikePost = async (req, res) => {
         }
         post.likes = post.likes.filter(like => like.toString() !== req.user._id.toString());
         await post.save();
+        console.log("unliked");
         res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -183,3 +185,25 @@ export const removeComment = async (req, res) => {
     }
 };
 
+export const resharePost = asyncHandler(async (req, res) => {
+    const postId = req.params.id;
+    const userId = req.user._id;
+
+    // Find the post by ID
+    const post = await Post.findById(postId);
+    if (!post) {
+        throw new ApiError(404, "Post not found");
+    }
+
+    // Create a new post object for resharing
+   const resharedPost = new Post({
+        title: post.title,
+        content: post.content,
+        image: post.image,
+        video: post.video,
+        author: userId,
+    });
+
+    await resharedPost.save();
+    res.status(201).json(resharedPost);
+});

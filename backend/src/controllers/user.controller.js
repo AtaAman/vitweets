@@ -462,6 +462,40 @@ const followUnfollowUser = asyncHandler(async (req, res) => {
     }
 });
 
+    const savePost = asyncHandler(async (req, res) => {
+    const postId = req.params.id;
+    const userId = req.user._id;
+  
+    // Check if the post is already saved by the user
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+  
+    if (!user.savedPosts.includes(postId)) {
+      user.savedPosts.push(postId);
+      await user.save();
+    }
+  
+    res.status(200).json({ message: 'Post saved successfully' });
+  });
+  
+  // Unsave a post for a user
+    const unsavePost = asyncHandler(async (req, res) => {
+    const postId = req.params.id;
+    const userId = req.user._id;
+  
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+  
+    user.savedPosts = user.savedPosts.filter((savedPostId) => savedPostId.toString() !== postId);
+    await user.save();
+  
+    res.status(200).json({ message: 'Post unsaved successfully' });
+  });
+
 const getNotifications = asyncHandler(async (req, res) => {
     const notifications = await Notification.find({ userId: req.user._id }).sort(
         { createdAt: -1 }
@@ -487,5 +521,7 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getNotifications,
-    followUnfollowUser
+    followUnfollowUser,
+    savePost,
+    unsavePost
 }

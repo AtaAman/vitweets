@@ -153,6 +153,28 @@ export const resetPassword = createAsyncThunk("auth/resetPassword", async (data,
     }
 });
 
+export const savePost = createAsyncThunk("auth/savePost", async (postId, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`/posts/${postId}/save`);
+        toast.success("Post saved successfully!!!");
+        return response.data;
+    } catch (error) {
+        toast.error(error?.response?.data?.message || "An error occurred");
+        return rejectWithValue(error.response.data);
+    }
+});
+
+export const unsavePost = createAsyncThunk("auth/unsavePost", async (postId, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.post(`/posts/${postId}/unsave`);
+        toast.success("Post unsaved successfully!!!");
+        return response.data;
+    } catch (error) {
+        toast.error(error?.response?.data?.message || "An error occurred");
+        return rejectWithValue(error.response.data);
+    }
+});
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -268,6 +290,24 @@ const authSlice = createSlice({
                 state.loading = false;
             })
             .addCase(resetPassword.rejected, (state) => {
+                state.loading = false;
+            })
+            .addCase(savePost.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(savePost.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(savePost.rejected, (state) => {
+                state.loading = false;
+            })
+            .addCase(unsavePost.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(unsavePost.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(unsavePost.rejected, (state) => {
                 state.loading = false;
             });
     },

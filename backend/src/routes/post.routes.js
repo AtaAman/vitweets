@@ -11,7 +11,8 @@ import {
     likePost,
     unlikePost,
     addComment,
-    removeComment
+    removeComment,
+    resharePost
 } from '../controllers/post.controller.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
 
@@ -55,4 +56,5 @@ router.route('/:id/comment')
 router.route('/:id/comment/:commentId')
     .delete(verifyJWT, removeComment); // Remove a comment from a post
 
+    router.route('/reshare/:id').post(verifyJWT, resharePost);
 export default router;

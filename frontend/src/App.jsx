@@ -26,7 +26,7 @@ function App() {
 
     return (
         <div className="w-full">
-            {token && (
+            {!(token===null) && (
                 <>
                     <TopBar />
                     <LogoNav />
@@ -35,7 +35,7 @@ function App() {
             <section className="flex h-screen">
                 <Outlet />
             </section>
-            {token && (
+            {!(token===null) && (
                 <>
                     <BottomBar />
                 </>

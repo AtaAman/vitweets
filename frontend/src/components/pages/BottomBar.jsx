@@ -12,7 +12,7 @@ import {
 
 function BottomBar() {
   return (
-    <section className="z-50 flex-between backdrop-blur-sm bg-black/20 bg-[#101012] border-t-2 border-gray-900 w-screen text-white sticky bottom-0 py-4 md:hidden">
+    <section className="z-50 flex-between backdrop-blur-sm bg-black/20 bg-[#101012] border-t-2 border-gray-900 w-screen text-white fixed bottom-0 py-4 md:hidden">
                 <ul className="flex text-xl flex-row justify-around">
             <li className="rounded-lg flex base-medium transition">
               <NavLink

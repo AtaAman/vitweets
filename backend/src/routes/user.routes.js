@@ -13,7 +13,9 @@ import {
     requestPasswordReset,
     resetPassword,
     followUnfollowUser,
-    getNotifications
+    getNotifications,
+    savePost,
+    unsavePost,
 } from '../controllers/user.controller.js';
 import { upload } from '../middlewares/multer.middleware.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
@@ -43,6 +45,9 @@ router.route('/reset-password').post(resetPassword);
 router.route('/logout').post(verifyJWT, logoutUser);
 router.route('/refresh-token').post(refreshAccessToken);
 router.route('/followUnfollowUser').post(verifyJWT, followUnfollowUser);
+
+router.route('/save/:id').put(verifyJWT, savePost);
+router.route('/unsave/:id').put(verifyJWT, unsavePost);
 router.route('/getNotifications').get(verifyJWT, getNotifications);
 router.route('/change-password').post(verifyJWT, changeCurrentPassword);
 router.route('/current-user').get(verifyJWT, getCurrentUser);
