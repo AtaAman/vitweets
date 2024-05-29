@@ -24,13 +24,13 @@ function PostList({
 
   const renderContent = () => {
     const words = content.split(" ");
-    if (words.length <= 25) {
+    if (words.length <= 50) {
       return content;
     }
     if (isExpanded) {
       return content;
     }
-    const truncatedContent = words.slice(0, 25).join(" ");
+    const truncatedContent = words.slice(0, 50).join(" ");
     return `${truncatedContent}...`;
   };
 
@@ -50,11 +50,11 @@ function PostList({
         <FontAwesomeIcon icon={faTrashCan} />
         </div>
       </div>
-      <div className="px-3 w-full">
+      <div className="px-3 pt-5 w-full">
         <p className="text-xl font-bold text-gray-500">{title}</p>
       </div>
-      <div className="w-full p-3 rounded-xl">
-        <p className="text-sm md:text-md lg:text-lg text-white">
+      <div className="w-full h-auto">
+        <p className="text-sm md:text-md p-2 lg:text-lg text-white">
           {renderContent()}
           {content.split(" ").length > 25 && (
             <span
@@ -69,14 +69,14 @@ function PostList({
       {image && (
         <img
           src={image}
-          className="w-full object-contain h-auto rounded-xl mt-3"
+          className="w-full object-cover max-h-[280px] md:max-h-[350px] rounded-xl mt-3"
           alt=""
         />
       )}
       {video && (
         <video
           src={video}
-          className="w-full object-contain h-auto rounded-xl mt-3"
+          className="w-full object-cover max-h-[250px] rounded-xl mt-3"
           autoPlay
           controls
         />
