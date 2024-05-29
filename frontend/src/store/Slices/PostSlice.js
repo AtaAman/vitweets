@@ -9,19 +9,13 @@ const initialState = {
     error: null,
 };
 
-export const createPost = createAsyncThunk("posts/createPost", async (data, { rejectWithValue }) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("content", data.content);
-    if (data.video) {
-        formData.append("video", data.video[0]);
-    }
-    if (data.image) {
-        formData.append("image", data.image[0]);
-    }
-
+export const createPost = createAsyncThunk("posts/createPost", async (formData, { rejectWithValue }) => {
     try {
-        const response = await axiosInstance.post("/post/", formData);
+        const response = await axiosInstance.post("/post/", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         toast.success("Post created successfully!!!");
         return response.data;
     } catch (error) {
@@ -131,18 +125,18 @@ const postsSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(createPost.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(createPost.fulfilled, (state, action) => {
-                state.loading = false;
-                state.posts.push(action.payload);
-            })
-            .addCase(createPost.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
+        .addCase(createPost.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(createPost.fulfilled, (state, action) => {
+            state.loading = false;
+            state.posts.push(action.payload);
+        })
+        .addCase(createPost.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        })
             .addCase(getPosts.pending, (state) => {
                 state.loading = true;
                 state.error = null;
