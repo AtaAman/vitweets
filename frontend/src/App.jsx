@@ -10,9 +10,9 @@ function App() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const token = localStorage.getItem('accessToken');
-
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
+        console.log(token);
         if (token) {
             dispatch(getCurrentUser()).unwrap().then(() => {
                 navigate('/');

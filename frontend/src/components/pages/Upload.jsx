@@ -99,7 +99,7 @@ const CreatePost = () => {
               <img
                 src={user.avatar || " "} // Ensure the user object has an avatar property
                 alt="User Avatar"
-                className="md:h-16 md:w-16 rounded-full"
+                className="h-12 w-12 md:h-16 md:w-16 rounded-full"
               />
             </div>
           )

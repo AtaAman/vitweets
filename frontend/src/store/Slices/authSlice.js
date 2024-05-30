@@ -6,6 +6,7 @@ const initialState = {
     loading: false,
     status: false,
     userData: null,
+    notifications: [],
 };
 
 // Async thunks for API interactions
@@ -76,7 +77,9 @@ export const changePassword = createAsyncThunk("auth/changePassword", async (dat
 
 export const getCurrentUser = createAsyncThunk("auth/getCurrentUser", async (_, { rejectWithValue }) => {
     try {
-        const response = await axiosInstance.get("/users/current-user");
+        const response = await axiosInstance.get("/users/current-user",{
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+        });
         return response.data.data;
     } catch (error) {
         return rejectWithValue(error.response.data);
@@ -175,6 +178,16 @@ export const unsavePost = createAsyncThunk("auth/unsavePost", async (postId, { r
     }
 });
 
+export const getNotifications = createAsyncThunk("auth/getNotifications", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get("/users/getNotifications"); // Adjust the API endpoint as per your backend
+        return response.data.notifications; // Assuming notifications are returned as an array
+    } catch (error) {
+        toast.error(error?.response?.data?.error || "An error occurred while fetching notifications");
+        return rejectWithValue(error.response.data);
+    }
+});
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -217,17 +230,19 @@ const authSlice = createSlice({
             })
             // Get Current User
             .addCase(getCurrentUser.pending, (state) => {
-                state.loading = true;
+            state.loading = true;
             })
             .addCase(getCurrentUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.status = true;
-                state.userData = action.payload;
+                state.user = action.payload;
+                state.isAuthenticated = true;
             })
-            .addCase(getCurrentUser.rejected, (state) => {
+            .addCase(getCurrentUser.rejected, (state, action) => {
                 state.loading = false;
-                state.status = false;
-                state.userData = null;
+                state.error = action.payload;
+                state.isAuthenticated = false;
+                state.token = null;
+                localStorage.removeItem('accessToken');
             })
             // Update Avatar
             .addCase(updateAvatar.pending, (state) => {
@@ -308,6 +323,17 @@ const authSlice = createSlice({
                 state.loading = false;
             })
             .addCase(unsavePost.rejected, (state) => {
+                state.loading = false;
+            })
+            //getnotification
+            .addCase(getNotifications.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getNotifications.fulfilled, (state, action) => {
+                state.loading = false;
+                state.notifications = action.payload; // Update notifications state with fetched data
+            })
+            .addCase(getNotifications.rejected, (state) => {
                 state.loading = false;
             });
     },

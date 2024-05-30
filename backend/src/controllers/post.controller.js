@@ -2,7 +2,7 @@ import { Post } from '../models/post.model.js';
 import {asyncHandler} from '../utils/asyncHandler.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js'; // Make sure you have a utility function to upload files to Cloudinary
 import {ApiError} from '../utils/ApiError.js';
-
+import Notification from "../models/notification.models.js";
 
 export const createPost = asyncHandler(async (req, res) => {
     const { title, content } = req.body;
@@ -109,9 +109,9 @@ export const deletePost = async (req, res) => {
 };
 
 // Like a post
-export const likePost = async (req, res) => {
+export const likePost = asyncHandler(async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).populate('author');
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -120,34 +120,52 @@ export const likePost = async (req, res) => {
         }
         post.likes.push(req.user._id);
         await post.save();
-        console.log("liked");
+
+        // Create a like notification
+        const newNotification = new Notification({
+            userId: post.author._id,
+            creator: req.user._id,
+            type: "Like",
+            title: `${req.user.username} liked your post`,
+            post: post._id  // Include the post reference
+        });
+        await newNotification.save();
+
         res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+});
 
 // Unlike a post
 export const unlikePost = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).populate('creator');
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
         post.likes = post.likes.filter(like => like.toString() !== req.user._id.toString());
         await post.save();
-        console.log("unliked");
+
+        // Delete the like notification
+        await Notification.deleteOne({
+            userId: post.creator._id,
+            creator: req.user._id,
+            type: "Like",
+        });
+
         res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
+
 // Add a comment to a post
-export const addComment = async (req, res) => {
+export const addComment = asyncHandler(async (req, res) => {
     try {
         const { content } = req.body;
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).populate('author');
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -157,16 +175,29 @@ export const addComment = async (req, res) => {
         };
         post.comments.push(comment);
         await post.save();
+
+        // Create a comment notification
+        const newNotification = new Notification({
+            userId: post.author._id,
+            creator: req.user._id,
+            type: "Comment",
+            title: `${req.user.username} commented`,
+            content: content,  // Include the comment content
+            post: post._id  // Include the post reference
+        });
+        await newNotification.save();
+
         res.status(201).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+});
+
 
 // Remove a comment from a post
-export const removeComment = async (req, res) => {
+export const removeComment = asyncHandler(async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).populate('author');
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -179,11 +210,21 @@ export const removeComment = async (req, res) => {
         }
         post.comments = post.comments.filter(comment => comment._id.toString() !== req.params.commentId);
         await post.save();
+
+        // Optional: Delete the comment notification
+        await Notification.deleteOne({
+            userId: post.author._id,
+            creator: req.user._id,
+            type: "Comment",
+            post: post._id // Ensure the notification is specific to this post
+        });
+
         res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+});
+
 
 export const resharePost = asyncHandler(async (req, res) => {
     const postId = req.params.id;

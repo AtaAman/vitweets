@@ -12,10 +12,15 @@ function PostList({
   content,
   title,
   avatar,
+  username,
   accountName,
   createdAt,
   postId,
 }) {
+  const getInitial = (username) => {
+    if (!username) return "";
+    return username.charAt(0).toUpperCase();
+  };
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleContent = () => {
@@ -35,11 +40,18 @@ function PostList({
   };
 
   return (
-    <div className="flex flex-col bg-[#16151518] p-5 items-start border-[#000000] border-t-[1px]">
+    <div
+     className="flex flex-col bg-[#16151518] p-5 items-start border-[#000000] border-t-[1px]">
       <div className="flex w-full justify-between flex-row gap-3 items-start">
         <div className="flex flex-row">
-          <div className="w-[46px] h-[46px] rounded-full border border-secondary">
-            <img src={avatar} className="rounded-full" />
+          <div className="w-[46px] h-[46px] rounded-full">
+          {avatar ? (
+            <img src={avatar} alt={username} className="w-12 h-12 rounded-full" />
+          ) : (
+            <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
+              {getInitial(username)}
+            </div>
+          )}
           </div>
           <div className="flex flex-col justify-center flex-1 pl-3 gap-y-1">
             <p className="text-sm text-gray-100 font-pregular">{accountName}</p>

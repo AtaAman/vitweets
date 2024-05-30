@@ -6,7 +6,7 @@ import {
     verifyOtp,
     refreshAccessToken, 
     changeCurrentPassword, 
-    getCurrentUser, 
+    getCurrentUser,
     updateUserAvatar, 
     updateUserCoverImage, 
     updateAccountDetails,

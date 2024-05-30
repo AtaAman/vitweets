@@ -1,27 +1,29 @@
 // main file (e.g., index.js or App.js)
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React from "react";
+import ReactDOM from "react-dom/client";
 import {
   Route,
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
-} from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './store/store';
-import App from './App';
-import Home from './components/pages/Home';
-import Explore from './components/pages/Explore';
-import Upload from './components/pages/Upload';
-import Notification from './components/pages/Notification';
-import Profile from './components/pages/Profile';
-import Signup from './components/auth/Signup';
-import VerifyOtp from './components/auth/verifyOtp';
-import Login from './components/auth/login';
-import PrivateRoute from './components/auth/PrivateRoutes';
-import RequestPasswordReset from './components/auth/RequestPasswordReset';
-import ResetPassword from './components/auth/ResetPassword';
-import './index.css';
+} from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store";
+import App from "./App";
+import Home from "./components/pages/Home";
+import Explore from "./components/pages/Explore";
+import Upload from "./components/pages/Upload";
+import Notification from "./components/pages/Notification";
+import Profile from "./components/pages/Profile";
+import Signup from "./components/auth/Signup";
+import VerifyOtp from "./components/auth/verifyOtp";
+import Login from "./components/auth/login";
+import PrivateRoute from "./components/auth/PrivateRoutes";
+import RequestPasswordReset from "./components/auth/RequestPasswordReset";
+import ResetPassword from "./components/auth/ResetPassword";
+import PostById from "./components/pages/PostById";
+import GetUserById from "./components/pages/GetUserById";
+import "./index.css";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -56,6 +58,22 @@ const router = createBrowserRouter(
         }
       />
       <Route
+        path="/post/:postId"
+        element={
+          <PrivateRoute>
+            <PostById />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/user/:userId"
+        element={
+          <PrivateRoute>
+            <GetUserById />
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/upload"
         element={
           <PrivateRoute>
@@ -83,7 +101,7 @@ const router = createBrowserRouter(
   )
 );
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <RouterProvider router={router} />
   </Provider>
