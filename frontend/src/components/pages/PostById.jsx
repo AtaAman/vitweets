@@ -35,13 +35,13 @@ function PostById() {
     <div>
        <PostList
             key={post._id}
-            avatar={post.author?.avatar || " "}
+            avatar={post.author?.avatar}
             title={post.title}
             content={post.content}
             video={post.video}
             image={post.image}
             createdAt={post.createdAt}
-            accountName={post.author?.username}
+            username={post.author?.username}
             postId={post._id}
           />
     </div>

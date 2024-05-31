@@ -7,6 +7,7 @@ import { sendOtpEmail } from "../utils/mailer.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import Notification from "../models/notification.models.js";
+import cron from 'node-cron';
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -330,28 +331,54 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
-const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+const getAllUsersBySearch = asyncHandler(async (req, res) => {
+  const { searchTerm } = req.query;
 
-  if (!fullName || !email) {
-    throw new ApiError(400, "All fields are required");
+  if (!searchTerm) {
+    throw new ApiError(400, "Search term is required");
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        fullName,
-        email: email,
-      },
-    },
+  const searchRegex = new RegExp(searchTerm, 'i'); // Case-insensitive search
+
+  const users = await User.find({
+    $or: [
+      { username: searchRegex },
+      { fullName: searchRegex },
+      { email: searchRegex }
+    ]
+  }).select("-password -refreshToken");
+
+  if (users.length === 0) {
+    throw new ApiError(404, "No users found matching the search criteria");
+  }
+
+  res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName } = req.body;
+
+  if (!fullName) {
+    throw new ApiError(400, "Full Name is required");
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    { fullName },
     { new: true }
   ).select("-password");
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Account details updated successfully"));
+  if (!updatedUser) {
+    throw new ApiError(404, "User not found");
+  }
+
+  res.status(200).json({
+    success: true,
+    user: updatedUser,
+    message: "Account details updated successfully",
+  });
 });
+
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.file?.path;
@@ -360,12 +387,12 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is missing");
   }
 
-  //TODO: delete old image - assignment
+  // TODO: delete old image - assignment
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
   if (!avatar.url) {
-    throw new ApiError(400, "Error while uploading on avatar");
+    throw new ApiError(400, "Error while uploading avatar");
   }
 
   const user = await User.findByIdAndUpdate(
@@ -378,9 +405,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     { new: true }
   ).select("-password");
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Avatar image updated successfully"));
+  return res.status(200).json({
+    success: true,
+    user,
+    message: "Avatar image updated successfully",
+  });
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
@@ -516,13 +545,33 @@ const unsavePost = asyncHandler(async (req, res) => {
 });
 
 const getNotifications = asyncHandler(async (req, res) => {
-  const userId = req.user._id; // Ensure you are using the correct user ID from the request
-  const notifications = await Notification.find({ userId: userId }).populate(
-    "creator"
-  );
-//   console.log(notifications); // Check if this logs the notifications correctly
+  const userId = req.user._id;
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+  const notifications = await Notification.find({ 
+    userId: userId,
+    createdAt: { $gte: oneWeekAgo } // Filter notifications created within the last week
+  })
+  .sort({ createdAt: -1 }) // Sort by createdAt field in descending order
+  .populate("creator");
+
   res.json({ notifications });
 });
+
+
+
+cron.schedule('0 0 * * *', async () => {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+  
+  try {
+    // Delete notifications older than 7 days
+    await Notification.deleteMany({ createdAt: { $lt: sevenDaysAgo } });
+    console.log('Old notifications deleted');
+  } catch (error) {
+    console.error('Error deleting old notifications:', error);
+  }
+});
+
 
 export {
   registerUser,
@@ -541,4 +590,5 @@ export {
   followUnfollowUser,
   savePost,
   unsavePost,
+  getAllUsersBySearch
 };

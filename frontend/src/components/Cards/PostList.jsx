@@ -13,7 +13,6 @@ function PostList({
   title,
   avatar,
   username,
-  accountName,
   createdAt,
   postId,
 }) {
@@ -54,7 +53,7 @@ function PostList({
           )}
           </div>
           <div className="flex flex-col justify-center flex-1 pl-3 gap-y-1">
-            <p className="text-sm text-gray-100 font-pregular">{accountName}</p>
+            <p className="text-sm text-gray-100 font-pregular">{username}</p>
             <p className="text-[10px]">{timeAgo(createdAt)}</p>
           </div>
         </div>

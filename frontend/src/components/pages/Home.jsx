@@ -16,26 +16,25 @@ function Home() {
 
   return (
     <div className="w-full absolute flex justify-center items-center">
-          <Container>
-      <div className="text-white mb-20 sm:m-0 w-full grid xl:grid-cols-1 sm:grid-cols-1 grid-cols-1 ">
-        {posts?.map((post) => (
-          <PostList
-            key={post._id}
-            avatar={post.author?.avatar}
-            title={post.title}
-            content={post.content}
-            video={post.video}
-            image={post.image}
-            createdAt={post.createdAt}
-            accountName={post.author?.username}
-            postId={post._id}
-          />
-        ))}
-      </div>
-      {loading && <HomeSkeleton />}
-    </Container>
+      <Container>
+        <div className="text-white mb-20 sm:m-0 w-full grid xl:grid-cols-1 sm:grid-cols-1 grid-cols-1 ">
+          {posts?.map((post) => (
+            <PostList
+              key={post._id}
+              avatar={post.author?.avatar}
+              title={post.title}
+              content={post.content}
+              video={post.video}
+              image={post.image}
+              createdAt={post.createdAt}
+              username={post.author?.username}
+              postId={post._id}
+            />
+          ))}
+        </div>
+        {loading && <HomeSkeleton />}
+      </Container>
     </div>
-
   );
 }
 

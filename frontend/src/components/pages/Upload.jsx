@@ -8,19 +8,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage, faVideo, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const CreatePost = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
-  const [video, setVideo] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [videoPreview, setVideoPreview] = useState(null);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading: postLoading, error } = useSelector((state) => state.posts);
-  const { userData: user, loading: userLoading } = useSelector(
-    (state) => state.auth
-  );
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [image, setImage] = useState(null);
+    const [video, setVideo] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [videoPreview, setVideoPreview] = useState(null);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { loading: postLoading, error } = useSelector((state) => state.posts);
+    const { loading: userLoading } = useSelector((state) => state.auth);
+    const user = JSON.parse(localStorage.getItem("user")); // Retrieve user data from local storage
 
+  
+  console.log(user);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -85,23 +86,29 @@ const CreatePost = () => {
     videoInputRef.current.value = null;
   };
 
+  const getInitial = (username) => {
+    if (!username) return "";
+    return username.charAt(0).toUpperCase();
+  };
+
   return (
-    <div className="w-full">
-      <h2 className="text-lg text-white text-center md:text-xl lg:text-2xl font-semibold">
-        New Post
-      </h2>
-      <div className="text-white p-5 md:p-10 flex w-full">
+    <div className="w-full flex justify-center">
+
+      <div className="text-white bg-black pt-10 rounded-sm md:rounded-3xl flex w-full md:w-[55%]">
         {userLoading ? (
           <p className="text-white">Loading user data...</p>
         ) : (
           user && (
-            <div className="h-12 w-12 md:h-16 md:w-16 rounded-full">
-              <img
-                src={user.avatar || " "} // Ensure the user object has an avatar property
-                alt="User Avatar"
-                className="h-12 w-12 md:h-16 md:w-16 rounded-full"
-              />
+            <div className="w-[25%] flex justify-end">
+              {user.avatar ? (
+              <img src={user.avatar} alt={user.username} className="w-12 h-12 rounded-full" />
+            ) : (
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold">
+                {getInitial(user.username)} {/* Fixed: use user.username */}
+              </div>
+            )}
             </div>
+            
           )
         )}
         <form
@@ -109,7 +116,7 @@ const CreatePost = () => {
           onSubmit={handleSubmit}
         >
           <div>
-            <p className="p-2">{user?.username}</p>
+          <p className="p-2 text-white">{user?.username}</p>
             <input
               className="bg-transparent outline-none text-lg font-semibold w-full p-2"
               placeholder="Title?..."
@@ -193,7 +200,7 @@ const CreatePost = () => {
             )}
           </div>
           <button
-            className="bg-red-700 mt-4 hover:bg-red-600 rounded-lg w-[30%] px-3 lg:py-3 py-2"
+            className="bg-red-700 mt-4 hover:bg-red-600 rounded-lg w-[30%] lg:py-3 py-2"
             type="submit"
             disabled={postLoading}
           >

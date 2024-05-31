@@ -7,6 +7,8 @@ const initialState = {
     status: false,
     userData: null,
     notifications: [],
+    users: [], // Add users to initial state
+    error: null, // Add a new state for storing searched users
 };
 
 // Async thunks for API interactions
@@ -37,6 +39,8 @@ export const userLogin = createAsyncThunk("auth/login", async (data, { rejectWit
     try {
         const response = await axiosInstance.post("/users/login", data);
         toast.success("Logged in successfully!!!");
+        // Store user data in local storage
+        localStorage.setItem("user", JSON.stringify(response.data.data.user));
         return response.data.data.user;
     } catch (error) {
         toast.error(error?.response?.data?.error);
@@ -86,18 +90,22 @@ export const getCurrentUser = createAsyncThunk("auth/getCurrentUser", async (_, 
     }
 });
 
-export const updateAvatar = createAsyncThunk("auth/updateAvatar", async (avatar, { rejectWithValue }) => {
-    try {
+export const updateAvatar = createAsyncThunk(
+    "auth/updateAvatar",
+    async (avatar, { rejectWithValue }) => {
+      try {
         const formData = new FormData();
         formData.append("avatar", avatar[0]);
-        const response = await axiosInstance.patch("/users/update-avatar", formData);
+        const response = await axiosInstance.patch("/users/avatar", formData);
         toast.success("Updated avatar successfully!!!");
+        console.log(formData);
         return response.data.data;
-    } catch (error) {
+      } catch (error) {
         toast.error(error?.response?.data?.error);
         return rejectWithValue(error.response.data);
+      }
     }
-});
+  );
 
 export const updateCoverImg = createAsyncThunk("auth/updateCoverImg", async (coverImage, { rejectWithValue }) => {
     try {
@@ -112,16 +120,31 @@ export const updateCoverImg = createAsyncThunk("auth/updateCoverImg", async (cov
     }
 });
 
-export const updateUserDetails = createAsyncThunk("auth/updateUserDetails", async (data, { rejectWithValue }) => {
-    try {
+export const updateUserDetails = createAsyncThunk(
+    "auth/updateUserDetails",
+    async (data, { rejectWithValue }) => {
+      try {
         const response = await axiosInstance.patch("/users/update-user", data);
         toast.success("Updated details successfully!!!");
         return response.data;
-    } catch (error) {
-        toast.error(error?.response?.data?.error);
-        return rejectWithValue(error.response.data);
+      } catch (error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          toast.error(error.response.data.message);
+          return rejectWithValue(error.response.data);
+        } else if (error.request) {
+          // The request was made but no response was received
+          toast.error("No response received from the server");
+          return rejectWithValue({ message: "No response received from the server" });
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          toast.error("An error occurred while sending the request");
+          return rejectWithValue({ message: "An error occurred while sending the request" });
+        }
+      }
     }
-});
+  );
 
 export const verifyOtp = createAsyncThunk("auth/verifyOtp", async (data, { rejectWithValue }) => {
     try {
@@ -188,6 +211,23 @@ export const getNotifications = createAsyncThunk("auth/getNotifications", async 
     }
 });
 
+// New thunk for getting users by search
+export const getAllUsersBySearch = createAsyncThunk(
+    'auth/getAllUsersBySearch',
+    async (searchTerm, { rejectWithValue }) => {
+      try {
+        const response = await axiosInstance.get(`/users/search`, {
+          params: { searchTerm },
+        });
+        console.log('API Response:', response.data.data); // Log API response
+        return response.data.data;
+      } catch (error) {
+        toast.error(error?.response?.data?.error || 'An error occurred');
+        return rejectWithValue(error.response.data);
+      }
+    }
+  );
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -230,7 +270,7 @@ const authSlice = createSlice({
             })
             // Get Current User
             .addCase(getCurrentUser.pending, (state) => {
-            state.loading = true;
+                state.loading = true;
             })
             .addCase(getCurrentUser.fulfilled, (state, action) => {
                 state.loading = false;
@@ -287,8 +327,8 @@ const authSlice = createSlice({
             .addCase(verifyOtp.rejected, (state) => {
                 state.loading = false;
             })
-             // Request Password Reset
-             .addCase(requestPasswordReset.pending, (state) => {
+            // Request Password Reset
+            .addCase(requestPasswordReset.pending, (state) => {
                 state.loading = true;
             })
             .addCase(requestPasswordReset.fulfilled, (state) => {
@@ -325,7 +365,7 @@ const authSlice = createSlice({
             .addCase(unsavePost.rejected, (state) => {
                 state.loading = false;
             })
-            //getnotification
+            // Get Notifications
             .addCase(getNotifications.pending, (state) => {
                 state.loading = true;
             })
@@ -335,7 +375,20 @@ const authSlice = createSlice({
             })
             .addCase(getNotifications.rejected, (state) => {
                 state.loading = false;
-            });
+            })
+            // Get Users by Search
+            .addCase(getAllUsersBySearch.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+              })
+              .addCase(getAllUsersBySearch.fulfilled, (state, action) => {
+                state.loading = false;
+                state.users = action.payload;
+              })
+              .addCase(getAllUsersBySearch.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+              });
     },
 });
 
